@@ -125,16 +125,16 @@ function _M.uncommit(self, key)
     local dict = self.dict
     local limit = self.limit
 
-    local remaining, err = dict:incr(key, 1)
-    if not remaining then
+    local consumed, err = dict:incr(key, -1)
+    if not consumed then
         if err == "not found" then
-            remaining = limit
+            consumed = limit
         else
             return nil, err
         end
     end
 
-    return remaining
+    return consumed
 end
 
 
