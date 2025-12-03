@@ -55,22 +55,22 @@ local function incoming_new(self, key, commit, cost)
     local limit = self.limit
     local window = self.window
 
-    local remaining, ok, err
+    local consumed, ok, err
 
     if commit then
-        remaining, err = dict:incr(key, -cost, limit, window)
-        if not remaining then
+        consumed, err = dict:incr(key, cost, 0, window)
+        if not consumed then
             return nil, err
         end
     else
-        remaining = (dict:get(key) or limit) - cost
+        consumed = (dict:get(key) or 0) + cost
     end
 
-    if remaining < 0 then
+    if consumed > limit then
         return nil, "rejected"
     end
 
-    return 0, remaining
+    return 0, consumed
 end
 
 -- incoming function using incr and expire
@@ -125,16 +125,16 @@ function _M.uncommit(self, key)
     local dict = self.dict
     local limit = self.limit
 
-    local remaining, err = dict:incr(key, 1)
-    if not remaining then
+    local consumed, err = dict:incr(key, -1)
+    if not consumed then
         if err == "not found" then
-            remaining = limit
+            consumed = limit
         else
             return nil, err
         end
     end
 
-    return remaining
+    return consumed
 end
 
 

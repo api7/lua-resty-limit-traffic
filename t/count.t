@@ -34,14 +34,15 @@ __DATA__
         content_by_lua_block {
             local limit_count = require "resty.limit.count"
             ngx.shared.store:flush_all()
-            local lim = limit_count.new("store", 10, 100)
+            local limit = 10
+            local lim = limit_count.new("store", limit, 100)
             local uri = ngx.var.uri
             for i = 1, 12 do
                 local delay, err = lim:incoming(uri, true)
                 if not delay then
                     ngx.say(err)
                 else
-                    local remaining = err
+                    local remaining = limit - err
                     ngx.say("remaining: ", remaining)
                 end
             end
@@ -75,7 +76,8 @@ rejected
         content_by_lua_block {
             local limit_count = require "resty.limit.count"
             ngx.shared.store:flush_all()
-            local lim = limit_count.new("store", 1, 10)
+            local limit = 1
+            local lim = limit_count.new("store", limit, 10)
             local delay1, err1 = lim:incoming("foo", true)
             local delay2, err2 = lim:incoming("foo", true)
             local delay3, err3 = lim:incoming("bar", true)
@@ -83,28 +85,28 @@ rejected
             if not delay1 then
                 ngx.say(err1)
             else
-                local remaining1 = err1
+                local remaining1 = limit - err1
                 ngx.say("remaining1: ", remaining1)
             end
 
             if not delay2 then
                 ngx.say(err2)
             else
-                local remaining2 = err2
+                local remaining2 = limit - err2
                 ngx.say("remaining2: ", remaining2)
             end
 
             if not delay3 then
                 ngx.say(err3)
             else
-                local remaining3 = err3
+                local remaining3 = limit -err3
                 ngx.say("remaining3: ", remaining3)
             end
 
             if not delay4 then
                 ngx.say(err4)
             else
-                local remaining4 = err4
+                local remaining4 = limit - err4
                 ngx.say("remaining4: ", remaining4)
             end
         }
@@ -129,7 +131,8 @@ rejected
         content_by_lua_block {
             local limit_count = require "resty.limit.count"
             ngx.shared.store:flush_all()
-            local lim = limit_count.new("store", 1, 1)
+            local limit = 1
+            local lim = limit_count.new("store", limit, 1)
 
             local uri = ngx.var.uri
             for i = 1, 2 do
@@ -137,7 +140,7 @@ rejected
                 if not delay then
                     ngx.say(err)
                 else
-                    local remaining = err
+                    local remaining = limit -  err
                     ngx.say("remaining: ", remaining)
                 end
 
@@ -145,7 +148,7 @@ rejected
                 if not delay then
                     ngx.say(err)
                 else
-                    local remaining = err
+                    local remaining = limit - err
                     ngx.say("remaining: ", remaining)
                 end
                 ngx.sleep(1)
@@ -172,7 +175,8 @@ rejected
         content_by_lua_block {
             local limit_count = require "resty.limit.count"
             ngx.shared.store:flush_all()
-            local lim = limit_count.new("store", 5, 10)
+            local limit = 5
+            local lim = limit_count.new("store", limit, 10)
             local begin = ngx.time()
 
             for i = 1, 4 do
@@ -180,7 +184,7 @@ rejected
                 if not delay then
                     ngx.say(err)
                 else
-                    local remaining = err
+                    local remaining = limit - err
                     ngx.say("remaining: ", remaining)
                 end
             end
@@ -205,7 +209,8 @@ remaining: 2
     location = /t {
         content_by_lua_block {
             local limit_count = require "resty.limit.count"
-            local lim = limit_count.new("store", 2, 10)
+            local limit = 2
+            local lim = limit_count.new("store", limit, 10)
             ngx.shared.store:flush_all()
             local key = "foo"
             for i = 1, 3 do
@@ -213,7 +218,7 @@ remaining: 2
                 if not delay then
                     ngx.say("failed to limit count: ", err)
                 else
-                    local remaining = err
+                    local remaining = limit - err
                     ngx.say("remaining: ", remaining)
                 end
                 local ok, err = lim:uncommit(key)
@@ -242,14 +247,15 @@ remaining: 1
         content_by_lua_block {
             local limit_count = require "resty.limit.count"
             ngx.shared.store:flush_all()
-            local lim = limit_count.new("store", 10, 100)
+            local limit = 10
+            local lim = limit_count.new("store", limit, 100)
             local uri = ngx.var.uri
             for i = 1, 7 do
                 local delay, err = lim:incoming(uri, true, 2)
                 if not delay then
                     ngx.say(err)
                 else
-                    local remaining = err
+                    local remaining = limit - err
                     ngx.say("remaining: ", remaining)
                 end
             end
