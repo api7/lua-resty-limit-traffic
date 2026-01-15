@@ -49,7 +49,7 @@ end
 -- parameter "cost" is only supported on the new interface
 local function incoming_new(self, key, commit, cost)
     cost = cost or 1
-    assert(cost >= 1)
+    assert(cost >= 0)
 
     local dict = self.dict
     local limit = self.limit
